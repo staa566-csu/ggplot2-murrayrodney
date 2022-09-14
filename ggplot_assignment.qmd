@@ -1,0 +1,69 @@
+---
+title: "GGPlot"
+format: 
+  html:
+    toc: true
+editor: source
+---
+
+```{r, warning=F, message=F}
+library(ggplot2)
+library(dplyr)
+```
+
+## Description
+I downloaded corn yield data from [USDA's quick stats lite site](https://www.nass.usda.gov/Quick_Stats/Lite/index.php#91CC0BA8-1B17-3774-91BB-3549B470CD60) so that I could compare corn yields over time from a couple of states of interest: Montana (where I will be moving to) and Colorado (because of CSU).
+
+To replicate the data one can visit the site linked above and apply the filters described below:
+* Sector = CROPS
+* Group = FIELD CROPS
+* Commodity = CORN
+* View = Acreage, Yield, and Production - Irrigated / Non-Irrigated
+* Year = 1950-2022
+* Geographic Level = State
+
+**Note: ** I exported data for all states, but had to do it in two exports. The tool provided an empty CSV when I attempted to select data for all states at once.
+
+## Load Data
+```{r}
+# Read data from a csv file
+# data <- read.csv('corn_production.csv')
+data1 <- read.csv('corn_production1.csv')
+data2 <- read.csv('corn_production2.csv')
+data <- bind_rows(data1, data2)
+
+# Change the names to lower case so that they're easier for me to work with
+names(data) <- tolower(names(data))
+
+# Display the first few rows
+head(data)
+```
+## Data preparation
+
+Here I will rename, select a subset of columns, and filter the data to records that have data for production
+
+```{r}
+# Rename, select a subset of columns, and filter
+data <- data %>%
+  rename(
+    production=production.in.bu, 
+    harvested_area=area.harvested.in.acres,
+    yield=yield.in.bu...acre
+    ) %>% 
+  filter(production > 0) %>% 
+  select(year, location, prodn.practice, harvested_area, production, yield)
+
+# Display the first few rows
+head(data)
+```
+
+## Plotting
+
+Here I plot the data of the states that the data was queried for
+
+```{r}
+ggplot(data, aes(x=year, y=yield, color=location)) +
+  facet_wrap(~prodn.practice, ncol=2) +
+  geom_line()
+```
+
