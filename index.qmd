@@ -1,6 +1,8 @@
 ---
 title: "GGPlot Assignment"
-format: html
+format: 
+  html:
+    toc: true
 editor: source
 ---
 
